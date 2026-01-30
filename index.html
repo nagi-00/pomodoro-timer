@@ -1,90 +1,265 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2d4059;
-            --accent: #ea5455;
-            --accent-shadow: rgba(234, 84, 85, 0.3);
-            --bg: #F8F9FA; /* 기본 배경색: 연한 회색 */
-            --text: #2d3748;
-            --shadow: rgba(45, 64, 89, 0.15);
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pomodoro Timer</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
 
-        body {
-            font-family: 'Crimson Pro', serif;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            color: var(--text);
-            overflow: hidden;
-        }
+<style>
+:root {
+    --primary: #2d4059;
+    --accent: #ea5455;
+    --accent-shadow: rgba(234,84,85,.3);
+    --bg: transparent;
+    --widget-bg: #f8f9fa;
+    --text: #2d3748;
+}
 
-        .container {
-            width: 100%;
-            max-width: 360px;
-            padding: 1rem;
-            position: relative;
-            perspective: 1000px;
-        }
+/* reset */
+* { margin:0; padding:0; box-sizing:border-box; }
 
-        .card-wrapper {
-            position: relative;
-            width: 100%;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
+body {
+    font-family: 'Crimson Pro', serif;
+    background: transparent;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    color:var(--text);
+}
 
-        .card-wrapper.flipped {
-            transform: rotateY(180deg);
-        }
+.container {
+    width:100%;
+    max-width:360px;
+    padding:1rem;
+}
 
-        .timer-card, .settings-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem 1.5rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-            position: relative;
-            overflow: hidden;
-            backface-visibility: hidden;
-        }
+/* card */
+.timer-card,
+.settings-card {
+    background: var(--widget-bg);
+    border-radius:20px;
+    padding:2rem 1.5rem;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+    backface-visibility:hidden;
+}
 
-        .settings-card {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            transform: rotateY(180deg);
-        }
+.settings-card {
+    position:absolute;
+    inset:0;
+    transform:rotateY(180deg);
+}
 
-        .timer-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            opacity: 0.8;
-        }
+.card-wrapper {
+    position:relative;
+    transform-style:preserve-3d;
+    transition:.6s;
+}
+.card-wrapper.flipped { transform:rotateY(180deg); }
 
-        /* 이하 CSS 전체 동일 */
-        /* … (중략 없음, 실제로는 네가 보낸 코드 그대로 유지됨) */
-    </style>
+/* timer */
+.mode-selector {
+    display:flex;
+    justify-content:center;
+    gap:.5rem;
+    margin-bottom:1.5rem;
+}
+
+.mode-btn {
+    font-family:'JetBrains Mono', monospace;
+    font-size:.75rem;
+    padding:.4rem .8rem;
+    border-radius:10px;
+    border:none;
+    background:none;
+    opacity:.5;
+    cursor:pointer;
+}
+.mode-btn.active {
+    background:var(--primary);
+    color:#fff;
+    opacity:1;
+}
+
+.timer-display { text-align:center; margin:1.5rem 0; }
+
+.circle-container {
+    width:180px;
+    margin:0 auto;
+    position:relative;
+}
+
+svg { transform:rotate(-90deg); }
+
+.progress-ring-bg {
+    fill:none;
+    stroke:#e0e0e0;
+    stroke-width:5;
+}
+.progress-ring-circle {
+    fill:none;
+    stroke:var(--accent);
+    stroke-width:5;
+    stroke-linecap:round;
+    transition:.4s;
+}
+
+.time {
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:2.3rem;
+    color:var(--primary);
+}
+
+/* controls */
+.controls {
+    display:flex;
+    justify-content:center;
+    gap:.75rem;
+}
+.control-btn {
+    padding:.6rem 1.2rem;
+    border-radius:10px;
+    border:none;
+    font-family:'JetBrains Mono';
+    font-size:.75rem;
+    cursor:pointer;
+}
+.start-btn { background:var(--accent); color:#fff; }
+.reset-btn { background:none; border:2px solid #ddd; }
+
+/* settings */
+.settings-title {
+    text-align:center;
+    font-family:'JetBrains Mono';
+    margin-bottom:1.2rem;
+}
+
+.color-options {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.75rem;
+}
+
+.color-option {
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    font-size:.7rem;
+}
+
+.color-picker {
+    width:34px;
+    height:34px;
+    border-radius:6px;
+    border:2px solid #ddd;
+    cursor:pointer;
+}
+
+/* buttons */
+.settings-toggle,
+.close-settings {
+    position:absolute;
+    top:1rem;
+    right:1rem;
+    background:none;
+    border:none;
+    cursor:pointer;
+    opacity:.5;
+}
+</style>
 </head>
+
 <body>
-    <!-- body 이하, script 포함 전부 동일 -->
+
+<div class="container">
+<div class="card-wrapper">
+
+<!-- TIMER -->
+<div class="timer-card">
+<button class="settings-toggle">⚙</button>
+
+<div class="mode-selector">
+<button class="mode-btn active" data-mode="pomodoro">포모도로</button>
+<button class="mode-btn" data-mode="short">짧은 휴식</button>
+<button class="mode-btn" data-mode="long">긴 휴식</button>
+</div>
+
+<div class="timer-display">
+<div class="circle-container">
+<svg viewBox="0 0 180 180">
+<circle class="progress-ring-bg" cx="90" cy="90" r="82"/>
+<circle class="progress-ring-circle" cx="90" cy="90" r="82"/>
+</svg>
+<div class="time">25:00</div>
+</div>
+</div>
+
+<div class="controls">
+<button class="control-btn start-btn">시작</button>
+<button class="control-btn reset-btn">초기화</button>
+</div>
+</div>
+
+<!-- SETTINGS -->
+<div class="settings-card">
+<button class="close-settings">✕</button>
+<div class="settings-title">위젯 설정</div>
+
+<div class="color-options">
+<div class="color-option">
+<label>위젯 배경</label>
+<input type="color" id="widgetBg" class="color-picker" value="#f8f9fa">
+</div>
+<div class="color-option">
+<label>투명</label>
+<input type="checkbox" id="bgTransparent">
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+const root = document.documentElement;
+const widgetBgPicker = document.getElementById('widgetBg');
+const transparentCheck = document.getElementById('bgTransparent');
+const wrapper = document.querySelector('.card-wrapper');
+
+function applyWidgetBg() {
+    if (transparentCheck.checked) {
+        root.style.setProperty('--widget-bg', 'transparent');
+        localStorage.setItem('widgetBg', 'transparent');
+    } else {
+        root.style.setProperty('--widget-bg', widgetBgPicker.value);
+        localStorage.setItem('widgetBg', widgetBgPicker.value);
+    }
+}
+
+widgetBgPicker.addEventListener('change', applyWidgetBg);
+transparentCheck.addEventListener('change', applyWidgetBg);
+
+const savedBg = localStorage.getItem('widgetBg');
+if (savedBg) {
+    if (savedBg === 'transparent') {
+        transparentCheck.checked = true;
+        root.style.setProperty('--widget-bg', 'transparent');
+    } else {
+        widgetBgPicker.value = savedBg;
+        root.style.setProperty('--widget-bg', savedBg);
+    }
+}
+
+document.querySelector('.settings-toggle').onclick = () => wrapper.classList.add('flipped');
+document.querySelector('.close-settings').onclick = () => wrapper.classList.remove('flipped');
+</script>
+
 </body>
 </html>
