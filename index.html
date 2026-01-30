@@ -5,175 +5,138 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pomodoro Timer</title>
 
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-:root {
-    --primary: #2d4059;
-    --accent: #ea5455;
-    --accent-shadow: rgba(234,84,85,.3);
-    --bg: transparent;
-    --widget-bg: #f8f9fa;
-    --text: #2d3748;
+:root{
+  --primary:#2d4059;
+  --accent:#ea5455;
+  --widget-bg:#f8f9fa;
+  --text:#2d3748;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+*{box-sizing:border-box;margin:0;padding:0}
 
-body {
-    font-family:'Crimson Pro', serif;
-    background:transparent;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    color:var(--text);
+body{
+  background:transparent;
+  font-family:'JetBrains Mono', monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  color:var(--text);
 }
 
-.container { max-width:360px; width:100%; padding:1rem; }
+.container{width:360px;padding:1rem}
 
-.card-wrapper {
-    position:relative;
-    transform-style:preserve-3d;
-    transition:.6s;
+.card-wrapper{
+  position:relative;
+  transform-style:preserve-3d;
+  transition:.6s;
 }
-.card-wrapper.flipped { transform:rotateY(180deg); }
+.card-wrapper.flipped{transform:rotateY(180deg)}
 
-.timer-card,
-.settings-card {
-    background:var(--widget-bg);
-    border-radius:20px;
-    padding:2rem 1.5rem;
-    box-shadow:0 2px 6px rgba(0,0,0,.08);
-    backface-visibility:hidden;
-}
-
-.settings-card {
-    position:absolute;
-    inset:0;
-    transform:rotateY(180deg);
+.card{
+  background:var(--widget-bg);
+  border-radius:20px;
+  padding:1.5rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+  backface-visibility:hidden;
 }
 
-/* 상단 버튼 */
+.settings-card{
+  position:absolute;
+  inset:0;
+  transform:rotateY(180deg);
+}
+
+button{
+  cursor:pointer;
+  border:none;
+  background:none;
+  font-family:inherit;
+}
+
 .settings-toggle,
-.close-settings {
-    position:absolute;
-    top:1rem;
-    right:1rem;
-    background:none;
-    border:none;
-    cursor:pointer;
-    opacity:.5;
+.close-settings{
+  position:absolute;
+  top:1rem;
+  right:1rem;
+  opacity:.6;
 }
 
-/* 모드 */
-.mode-selector {
-    display:flex;
-    justify-content:center;
-    gap:.5rem;
-    margin-bottom:1.5rem;
+.mode-selector{
+  display:flex;
+  justify-content:center;
+  gap:.5rem;
+  margin-bottom:1rem;
 }
 
-.mode-btn {
-    font-family:'JetBrains Mono';
-    font-size:.7rem;
-    padding:.4rem .8rem;
-    border-radius:10px;
-    border:none;
-    background:none;
-    opacity:.5;
-    cursor:pointer;
+.mode-btn{
+  padding:.4rem .8rem;
+  border-radius:10px;
+  font-size:.7rem;
+  opacity:.5;
 }
-.mode-btn.active {
-    background:var(--primary);
-    color:#fff;
-    opacity:1;
+.mode-btn.active{
+  background:var(--primary);
+  color:#fff;
+  opacity:1;
 }
 
-/* 타이머 */
-.timer-display { text-align:center; margin:1.5rem 0; }
+.timer-display{text-align:center;margin:1rem 0}
 
-.circle-container {
-    width:180px;
-    margin:0 auto;
-    position:relative;
+.circle{
+  width:180px;
+  height:180px;
+  margin:auto;
+  position:relative;
 }
 
-svg { transform:rotate(-90deg); }
+svg{transform:rotate(-90deg)}
 
-.progress-ring-bg {
-    fill:none;
-    stroke:#e5e7eb;
-    stroke-width:5;
+circle.bg{
+  stroke:#e5e7eb;
+  stroke-width:6;
+  fill:none;
 }
-.progress-ring-circle {
-    fill:none;
-    stroke:var(--accent);
-    stroke-width:5;
-    stroke-linecap:round;
-    transition:.4s;
-}
-
-.time {
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'JetBrains Mono';
-    font-size:2.3rem;
-    color:var(--primary);
+circle.fg{
+  stroke:var(--accent);
+  stroke-width:6;
+  fill:none;
+  stroke-linecap:round;
+  transition:.5s;
 }
 
-/* 버튼 */
-.controls {
-    display:flex;
-    justify-content:center;
-    gap:.75rem;
+.time{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:2.3rem;
+  color:var(--primary);
 }
 
-.control-btn {
-    padding:.6rem 1.2rem;
-    border-radius:10px;
-    border:none;
-    font-family:'JetBrains Mono';
-    font-size:.75rem;
-    cursor:pointer;
+.controls{
+  display:flex;
+  justify-content:center;
+  gap:.75rem;
 }
 
-.start-btn { background:var(--accent); color:#fff; }
-.reset-btn { background:none; border:2px solid #ddd; }
-
-/* 설정 */
-.settings-title {
-    text-align:center;
-    font-family:'JetBrains Mono';
-    font-size:.9rem;
-    margin-bottom:1.2rem;
-    color:var(--primary);
+.control-btn{
+  padding:.6rem 1.2rem;
+  border-radius:10px;
+  font-size:.75rem;
 }
+.start{background:var(--accent);color:#fff}
+.reset{border:2px solid #ddd}
 
-.settings-section { margin-bottom:1.5rem; }
+.settings-title{text-align:center;margin-bottom:1rem}
 
-.color-options {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:.75rem;
-}
-
-.color-option {
-    display:flex;
-    align-items:center;
-    gap:.5rem;
-    font-size:.7rem;
-}
-
-.color-picker {
-    width:34px;
-    height:34px;
-    border-radius:6px;
-    border:2px solid #ddd;
-    cursor:pointer;
-}
+.setting{margin-bottom:.75rem;font-size:.7rem;display:flex;justify-content:space-between;align-items:center}
+input[type="number"]{width:60px}
+input[type="color"]{width:32px;height:32px;border:none}
 </style>
 </head>
 
@@ -181,96 +144,107 @@ svg { transform:rotate(-90deg); }
 <div class="container">
 <div class="card-wrapper">
 
-<!-- 메인 -->
-<div class="timer-card">
+<!-- MAIN -->
+<div class="card timer-card">
 <button class="settings-toggle">⚙</button>
 
 <div class="mode-selector">
-<button class="mode-btn active">포모도로</button>
-<button class="mode-btn">짧은 휴식</button>
-<button class="mode-btn">긴 휴식</button>
+<button class="mode-btn active" data-mode="pomodoro">포모도로</button>
+<button class="mode-btn" data-mode="short">짧은 휴식</button>
+<button class="mode-btn" data-mode="long">긴 휴식</button>
 </div>
 
 <div class="timer-display">
-<div class="circle-container">
-<svg viewBox="0 0 180 180">
-<circle class="progress-ring-bg" cx="90" cy="90" r="82"/>
-<circle class="progress-ring-circle" cx="90" cy="90" r="82"/>
+<div class="circle">
+<svg width="180" height="180">
+<circle class="bg" cx="90" cy="90" r="82"/>
+<circle class="fg" cx="90" cy="90" r="82"/>
 </svg>
 <div class="time">25:00</div>
 </div>
 </div>
 
 <div class="controls">
-<button class="control-btn start-btn">시작</button>
-<button class="control-btn reset-btn">초기화</button>
+<button class="control-btn start">시작</button>
+<button class="control-btn reset">초기화</button>
 </div>
 </div>
 
-<!-- 설정 -->
-<div class="settings-card">
+<!-- SETTINGS -->
+<div class="card settings-card">
 <button class="close-settings">✕</button>
 <div class="settings-title">설정</div>
 
-<div class="settings-section">
-<div class="color-options">
-<div class="color-option">
-<label>주요 색상</label>
-<input type="color" id="primaryColor" class="color-picker" value="#2d4059">
-</div>
-<div class="color-option">
-<label>강조 색상</label>
-<input type="color" id="accentColor" class="color-picker" value="#ea5455">
-</div>
-<div class="color-option">
-<label>위젯 배경</label>
-<input type="color" id="widgetBg" class="color-picker" value="#f8f9fa">
-</div>
-<div class="color-option">
-<label>투명</label>
-<input type="checkbox" id="bgTransparent">
-</div>
-</div>
-</div>
+<div class="setting">포모도로(분) <input id="pomodoroTime" type="number" value="25"></div>
+<div class="setting">짧은 휴식 <input id="shortTime" type="number" value="5"></div>
+<div class="setting">긴 휴식 <input id="longTime" type="number" value="15"></div>
+
+<div class="setting">주요 색상 <input id="primaryColor" type="color" value="#2d4059"></div>
+<div class="setting">강조 색상 <input id="accentColor" type="color" value="#ea5455"></div>
+<div class="setting">위젯 배경 <input id="bgColor" type="color" value="#f8f9fa"></div>
 </div>
 
 </div>
 </div>
 
 <script>
-const root = document.documentElement;
-const wrapper = document.querySelector('.card-wrapper');
+const modes={pomodoro:25,short:5,long:15};
+let currentMode='pomodoro';
+let time=modes[currentMode]*60;
+let timer=null;
 
-document.querySelector('.settings-toggle').onclick = () => wrapper.classList.add('flipped');
-document.querySelector('.close-settings').onclick = () => wrapper.classList.remove('flipped');
+const timeEl=document.querySelector('.time');
+const fg=document.querySelector('.fg');
+const r=82, C=2*Math.PI*r;
+fg.style.strokeDasharray=C;
 
-function applyColors() {
-    const primary = primaryColor.value;
-    const accent = accentColor.value;
-    const widgetBg = bgTransparent.checked ? 'transparent' : widgetBgPicker.value;
-
-    root.style.setProperty('--primary', primary);
-    root.style.setProperty('--accent', accent);
-    root.style.setProperty('--widget-bg', widgetBg);
-
-    localStorage.setItem('colors', JSON.stringify({ primary, accent, widgetBg }));
+function update(){
+  const m=String(Math.floor(time/60)).padStart(2,'0');
+  const s=String(time%60).padStart(2,'0');
+  timeEl.textContent=`${m}:${s}`;
+  fg.style.strokeDashoffset=C*(1-time/(modes[currentMode]*60));
 }
 
-const primaryColor = document.getElementById('primaryColor');
-const accentColor = document.getElementById('accentColor');
-const widgetBgPicker = document.getElementById('widgetBg');
-const bgTransparent = document.getElementById('bgTransparent');
+update();
 
-[primaryColor, accentColor, widgetBgPicker, bgTransparent]
-.forEach(el => el.addEventListener('change', applyColors));
+document.querySelector('.start').onclick=()=>{
+  if(timer){clearInterval(timer);timer=null;return;}
+  timer=setInterval(()=>{
+    if(time>0){time--;update();}
+    else{clearInterval(timer);timer=null;}
+  },1000);
+};
 
-const saved = localStorage.getItem('colors');
-if (saved) {
-    const c = JSON.parse(saved);
-    root.style.setProperty('--primary', c.primary);
-    root.style.setProperty('--accent', c.accent);
-    root.style.setProperty('--widget-bg', c.widgetBg);
-}
+document.querySelector('.reset').onclick=()=>{
+  clearInterval(timer);timer=null;
+  time=modes[currentMode]*60;
+  update();
+};
+
+document.querySelectorAll('.mode-btn').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentMode=b.dataset.mode;
+    time=modes[currentMode]*60;
+    update();
+  };
+});
+
+document.querySelector('.settings-toggle').onclick=()=>{
+  document.querySelector('.card-wrapper').classList.add('flipped');
+};
+document.querySelector('.close-settings').onclick=()=>{
+  document.querySelector('.card-wrapper').classList.remove('flipped');
+};
+
+pomodoroTime.onchange=()=>{modes.pomodoro=pomodoroTime.value;};
+shortTime.onchange=()=>{modes.short=shortTime.value;};
+longTime.onchange=()=>{modes.long=longTime.value;};
+
+primaryColor.onchange=e=>document.documentElement.style.setProperty('--primary',e.target.value);
+accentColor.onchange=e=>document.documentElement.style.setProperty('--accent',e.target.value);
+bgColor.onchange=e=>document.documentElement.style.setProperty('--widget-bg',e.target.value);
 </script>
 </body>
 </html>
