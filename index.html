@@ -346,6 +346,44 @@
             text-align: center;
         }
 
+        .graph-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .graph-type-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.4rem 0.75rem;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            font-weight: 400;
+        }
+
+        .graph-type-btn:hover {
+            opacity: 0.8;
+            border-color: var(--primary);
+        }
+
+        .graph-type-btn.active {
+            background: var(--primary);
+            color: white;
+            opacity: 1;
+            border-color: var(--primary);
+        }
+
+        .progress-ring-circle.filled {
+            fill: var(--accent);
+            fill-opacity: 0.2;
+        }
+
         .time-adjusters {
             display: flex;
             flex-direction: column;
@@ -490,6 +528,11 @@
 
                 <div class="settings-title">설정</div>
 
+                <div class="graph-type-selector">
+                    <button class="graph-type-btn active" data-type="ring">링 그래프</button>
+                    <button class="graph-type-btn" data-type="pie">원 그래프</button>
+                </div>
+
                 <div class="settings-panel">
                     <div class="settings-section">
                         <div class="color-title">시간 설정</div>
@@ -548,6 +591,21 @@
     </div>
 
     <script>
+        // 페이지별 고유 ID 생성 (URL 기반)
+        function getPageId() {
+            // URL을 기반으로 고유한 ID 생성
+            const url = window.location.href;
+            let hash = 0;
+            for (let i = 0; i < url.length; i++) {
+                const char = url.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return 'pomodoro_' + Math.abs(hash);
+        }
+
+        const PAGE_ID = getPageId();
+
         // 타이머 설정
         const MODES = {
             pomodoro: 25 * 60,
@@ -560,6 +618,7 @@
         let isRunning = false;
         let timerInterval = null;
         let sessionsCompleted = 0;
+        let graphType = 'ring'; // 'ring' 또는 'pie'
 
         // DOM 요소
         const timeDisplay = document.querySelector('.time');
@@ -574,6 +633,7 @@
         const cardWrapper = document.querySelector('.card-wrapper');
         const timeBtns = document.querySelectorAll('.time-btn');
         const timeValues = document.querySelectorAll('.time-value');
+        const graphTypeBtns = document.querySelectorAll('.graph-type-btn');
 
         // 진행 바 초기화
         const radius = progressCircle.r.baseVal.value;
@@ -628,8 +688,34 @@
             // 진행 바 업데이트
             const totalTime = MODES[currentMode];
             const progress = (totalTime - timeLeft) / totalTime;
-            const offset = circumference - progress * circumference;
-            progressCircle.style.strokeDashoffset = offset;
+            
+            if (graphType === 'ring') {
+                // 링 그래프 (기존 방식)
+                const offset = circumference - progress * circumference;
+                progressCircle.style.strokeDashoffset = offset;
+                progressCircle.classList.remove('filled');
+            } else {
+                // 원 그래프 (파이 차트 방식)
+                const offset = circumference - progress * circumference;
+                progressCircle.style.strokeDashoffset = offset;
+                progressCircle.classList.add('filled');
+            }
+        }
+
+        // 그래프 타입 변경
+        function changeGraphType(type) {
+            graphType = type;
+            updateDisplay();
+            
+            graphTypeBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.type === type) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 로컬 스토리지에 저장
+            localStorage.setItem(`${PAGE_ID}_graphType`, type);
         }
 
         // 타이머 시작/일시정지
@@ -723,13 +809,13 @@
             document.documentElement.style.setProperty('--bg', bg);
             document.documentElement.style.setProperty('--text', text);
 
-            // 로컬 스토리지에 저장
-            localStorage.setItem('pomodoroColors', JSON.stringify({ primary, accent, bg, text }));
+            // 페이지별 로컬 스토리지에 저장
+            localStorage.setItem(`${PAGE_ID}_colors`, JSON.stringify({ primary, accent, bg, text }));
         }
 
         // 저장된 색상 불러오기
         function loadColors() {
-            const saved = localStorage.getItem('pomodoroColors');
+            const saved = localStorage.getItem(`${PAGE_ID}_colors`);
             if (saved) {
                 const colors = JSON.parse(saved);
                 document.getElementById('primaryColor').value = colors.primary;
@@ -759,12 +845,12 @@
                 short: MODES.short / 60,
                 long: MODES.long / 60
             };
-            localStorage.setItem('pomodoroModes', JSON.stringify(settings));
+            localStorage.setItem(`${PAGE_ID}_modes`, JSON.stringify(settings));
         }
 
         // 모드 설정 불러오기
         function loadModeSettings() {
-            const saved = localStorage.getItem('pomodoroModes');
+            const saved = localStorage.getItem(`${PAGE_ID}_modes`);
             if (saved) {
                 const settings = JSON.parse(saved);
                 MODES.pomodoro = settings.pomodoro * 60;
@@ -781,6 +867,20 @@
             }
         }
 
+        // 그래프 타입 불러오기
+        function loadGraphType() {
+            const saved = localStorage.getItem(`${PAGE_ID}_graphType`);
+            if (saved) {
+                graphType = saved;
+                graphTypeBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.type === saved) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
         // 이벤트 리스너
         startBtn.addEventListener('click', toggleTimer);
         resetBtn.addEventListener('click', resetTimer);
@@ -792,6 +892,10 @@
             picker.addEventListener('change', updateColors);
         });
 
+        graphTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => changeGraphType(btn.dataset.type));
+        });
+
         // 알림 권한 요청
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
@@ -800,6 +904,7 @@
         // 초기화
         loadColors();
         loadModeSettings();
+        loadGraphType();
         updateDisplay();
     </script>
 </body>
