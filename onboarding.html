@@ -489,7 +489,6 @@
         const accentCode = document.getElementById('accentCode');
         const previewCircle = document.getElementById('previewCircle');
         const previewTime = document.getElementById('previewTime');
-        const urlDisplay = document.getElementById('urlDisplay');
         const shareBtn = document.getElementById('shareBtn');
         const searchBtn = document.getElementById('searchBtn');
         const toast = document.getElementById('toast');
@@ -526,18 +525,16 @@
             previewTime.style.color = primary;
         }
 
-        function generateUrl() {
-            const params = new URLSearchParams({
-                primary: primaryColor.value.replace('#', ''),
-                accent: accentColor.value.replace('#', ''),
-                bg: 'ffffff',
-                text: '2d3748'
-            });
+function generateUrl() {
+    const params = new URLSearchParams({
+        primary: primaryColor.value.replace('#', ''),
+        accent: accentColor.value.replace('#', ''),
+        bg: 'ffffff',
+        text: '2d3748'
+    });
 
-            const url = `${BASE_URL}?${params.toString()}`;
-            urlDisplay.textContent = url;
-            return url;
-        }
+    return `${BASE_URL}?${params.toString()}`;
+}
 
         function showToast() {
             toast.classList.add('show');
