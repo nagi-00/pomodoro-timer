@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⏰ 타이머 꾸미기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Baloo 2', cursive;
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(255,182,193,0.03) 10px, rgba(255,182,193,0.03) 11px),
+                repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,182,193,0.03) 10px, rgba(255,182,193,0.03) 11px),
+                linear-gradient(135deg, #FFE5EC 0%, #FFF0F5 50%, #E8F5E9 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title-box {
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 3px solid #FF69B4;
+            box-shadow: 
+                0 4px 0 #FF1493,
+                0 8px 20px rgba(255,105,180,0.3);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .title-box::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            background: #FFE4E1;
+            border-radius: 50%;
+            box-shadow: 
+                -20px 0 0 #FFE4E1,
+                -40px 0 0 #FFE4E1;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 3px 3px 0 rgba(255,20,147,0.3);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #8B4789;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 2rem;
+            border: 3px solid #FFB6C1;
+            box-shadow: 
+                0 4px 0 #FFB6C1,
+                0 8px 24px rgba(255,182,193,0.4);
+            margin-bottom: 1.5rem;
+            animation: slideUp 0.6s ease-out 0.1s backwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #FF69B4;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .theme-item {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: visible;
+            border: 3px solid transparent;
+        }
+
+        .theme-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--color1) 0%, var(--color2) 100%);
+            border-radius: 17px;
+            z-index: 0;
+        }
+
+        .theme-item:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .theme-item.active {
+            border-color: var(--color1);
+            transform: scale(1.15);
+            box-shadow: 
+                0 0 0 3px white,
+                0 0 0 6px var(--color1),
+                0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .theme-item.active::after {
+            content: '✓';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            z-index: 1;
+            animation: pop 0.3s ease-out;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .theme-name {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        .custom-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 3px dashed #FFB6C1;
+        }
+
+        .color-item {
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 100%);
+            padding: 1.25rem;
+            border-radius: 20px;
+            border: 3px solid #FFB6C1;
+            margin-bottom: 1rem;
+        }
+
+        .color-label {
+            font-size: 0.9rem;
+            color: #FF69B4;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .color-code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #8B4789;
+            font-weight: 700;
+            background: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            height: 50px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #FFB6C1;
+            cursor: pointer;
+        }
+
+        .color-picker {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .preview-box {
+            background: linear-gradient(135deg, #E8F5E9 0%, #FFF9C4 100%);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 3px solid #81C784;
+            box-shadow: 
+                0 4px 0 #81C784,
+                0 8px 20px rgba(129,199,132,0.3);
+            text-align: center;
+        }
+
+        .preview-label {
+            font-size: 0.9rem;
+            color: #388E3C;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .preview-timer {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 3px solid #81C784;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .preview-circle {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .preview-time {
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .url-box {
+            background: #FFF9C4;
+            padding: 1rem;
+            border-radius: 15px;
+            border: 3px solid #FFD54F;
+            margin: 1rem 0;
+        }
+
+        .url-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: #F57F17;
+            word-break: break-all;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Baloo 2', cursive;
+        }
+
+        .btn-copy {
+            background: white;
+            color: #FF69B4;
+            border: 3px solid #FF69B4;
+            box-shadow: 0 4px 0 #FF69B4;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #FF69B4;
+        }
+
+        .btn-copy:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #FF69B4;
+        }
+
+        .btn-copy.copied {
+            background: #FF69B4;
+            color: white;
+        }
+
+        .btn-done {
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            color: white;
+            border: 3px solid #FF1493;
+            box-shadow: 0 4px 0 #C71585;
+        }
+
+        .btn-done:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #C71585;
+        }
+
+        .btn-done:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #C71585;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #8B4789;
+            font-size: 0.9rem;
+            font-weight: 600;
+            animation: slideUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .footer code {
+            background: #FFE4E1;
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #FF1493;
+        }
+
+        @media (max-width: 480px) {
+            .title-box {
+                padding: 1.25rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .theme-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-box">
+                <h1>⏰ 타이머 꾸미기</h1>
+            </div>
+            <div class="subtitle">✨ 나만의 색상을 골라보세요 ✨</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                🎨 테마 선택
+            </div>
+            <div class="theme-grid">
+                <div>
+                    <div class="theme-item active" data-theme="pink" 
+                         style="--color1: #FF69B4; --color2: #FFB6C1;"></div>
+                    <div class="theme-name">핑크</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="blue" 
+                         style="--color1: #64B5F6; --color2: #90CAF9;"></div>
+                    <div class="theme-name">블루</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="mint" 
+                         style="--color1: #4DB6AC; --color2: #80CBC4;"></div>
+                    <div class="theme-name">민트</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="orange" 
+                         style="--color1: #FFB74D; --color2: #FFCC80;"></div>
+                    <div class="theme-name">오렌지</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="purple" 
+                         style="--color1: #BA68C8; --color2: #CE93D8;"></div>
+                    <div class="theme-name">퍼플</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="green" 
+                         style="--color1: #81C784; --color2: #A5D6A7;"></div>
+                    <div class="theme-name">그린</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="peach" 
+                         style="--color1: #FFAB91; --color2: #FFCCBC;"></div>
+                    <div class="theme-name">피치</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="lavender" 
+                         style="--color1: #9575CD; --color2: #B39DDB;"></div>
+                    <div class="theme-name">라벤더</div>
+                </div>
+                <div>
+                    <div class="theme-item" data-theme="coral" 
+                         style="--color1: #FF7043; --color2: #FF8A65;"></div>
+                    <div class="theme-name">코랄</div>
+                </div>
+            </div>
+
+            <div class="custom-section">
+                <div class="section-title">
+                    🖌️ 직접 만들기
+                </div>
+                <div class="color-item">
+                    <div class="color-label">
+                        <span>주요 색상</span>
+                        <span class="color-code" id="primaryCode">#FF69B4</span>
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <input type="color" class="color-picker" id="primaryColor" value="#FF69B4">
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-label">
+                        <span>강조 색상</span>
+                        <span class="color-code" id="accentCode">#FFB6C1</span>
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <input type="color" class="color-picker" id="accentColor" value="#FFB6C1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="preview-box">
+                <div class="preview-label">✨ 미리보기 ✨</div>
+                <div class="preview-timer">
+                    <div class="preview-circle" id="previewCircle">
+                        <span class="preview-time" id="previewTime">25:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="url-box">
+                <div class="url-text" id="urlDisplay"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-copy" id="copyBtn">복사</button>
+                <button class="btn btn-done" id="doneBtn">완료 ✨</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            노션에서 <code>/embed</code> 후<br>URL을 붙여넣으세요 💕
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'https://pomodoro-timer-nagi.vercel.app';
+
+        const themes = {
+            pink: { primary: '#FF69B4', accent: '#FFB6C1' },
+            blue: { primary: '#64B5F6', accent: '#90CAF9' },
+            mint: { primary: '#4DB6AC', accent: '#80CBC4' },
+            orange: { primary: '#FFB74D', accent: '#FFCC80' },
+            purple: { primary: '#BA68C8', accent: '#CE93D8' },
+            green: { primary: '#81C784', accent: '#A5D6A7' },
+            peach: { primary: '#FFAB91', accent: '#FFCCBC' },
+            lavender: { primary: '#9575CD', accent: '#B39DDB' },
+            coral: { primary: '#FF7043', accent: '#FF8A65' }
+        };
+
+        const themeItems = document.querySelectorAll('.theme-item');
+        const primaryColor = document.getElementById('primaryColor');
+        const accentColor = document.getElementById('accentColor');
+        const primaryCode = document.getElementById('primaryCode');
+        const accentCode = document.getElementById('accentCode');
+        const previewCircle = document.getElementById('previewCircle');
+        const previewTime = document.getElementById('previewTime');
+        const urlDisplay = document.getElementById('urlDisplay');
+        const copyBtn = document.getElementById('copyBtn');
+        const doneBtn = document.getElementById('doneBtn');
+
+        themeItems.forEach(item => {
+            item.addEventListener('click', () => {
+                themeItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+
+                const themeName = item.dataset.theme;
+                const theme = themes[themeName];
+
+                primaryColor.value = theme.primary;
+                accentColor.value = theme.accent;
+
+                updateColors();
+            });
+        });
+
+        primaryColor.addEventListener('input', updateColors);
+        accentColor.addEventListener('input', updateColors);
+
+        function updateColors() {
+            primaryCode.textContent = primaryColor.value.toUpperCase();
+            accentCode.textContent = accentColor.value.toUpperCase();
+            updatePreview();
+            generateUrl();
+        }
+
+        function updatePreview() {
+            const primary = primaryColor.value;
+            const accent = accentColor.value;
+
+            previewCircle.style.background = `conic-gradient(${accent} 0% 25%, #f7fafc 25% 100%)`;
+            previewCircle.style.border = `5px solid ${primary}`;
+            previewTime.style.color = primary;
+        }
+
+        function generateUrl() {
+            const params = new URLSearchParams({
+                primary: primaryColor.value.replace('#', ''),
+                accent: accentColor.value.replace('#', ''),
+                bg: 'ffffff',
+                text: '2d3748'
+            });
+
+            const url = `${BASE_URL}?${params.toString()}`;
+            urlDisplay.textContent = url;
+            return url;
+        }
+
+        copyBtn.addEventListener('click', async () => {
+            const url = generateUrl();
+            try {
+                await navigator.clipboard.writeText(url);
+                copyBtn.textContent = '복사됨 ✓';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = '복사';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('URL: ' + url);
+            }
+        });
+
+        doneBtn.addEventListener('click', () => {
+            const url = generateUrl();
+            window.open(url, '_blank');
+        });
+
+        updateColors();
+        updatePreview();
+        generateUrl();
+    </script>
+</body>
+</html>
